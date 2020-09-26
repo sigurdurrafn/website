@@ -1,14 +1,14 @@
 import kotlinx.css.*
 import react.dom.*
 import styled.*
-import kotlin.browser.document
+import kotlinx.browser.document
 
 fun main() {
     val counter = 34
     render(document.getElementById("root")) {
 
         styledH1 {
-            +"Hello, React+Kotlin/JS!"
+            +"Hello, person!"
             css{
                 fontFamily = "sans-serif"
             }
