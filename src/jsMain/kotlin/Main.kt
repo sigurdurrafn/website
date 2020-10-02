@@ -1,55 +1,74 @@
-import kotlinx.css.*
-import react.dom.*
-import styled.*
+import jquery.jq
 import kotlinx.browser.document
+import kotlinx.browser.window
+import org.w3c.dom.CanvasRenderingContext2D
+import org.w3c.dom.HTMLCanvasElement
+import react.dom.render
+import kotlin.random.Random
 
 fun main() {
-    val counter = 34
     render(document.getElementById("root")) {
-
-        styledH1 {
-            +"Hello, person!"
-            css{
-                fontFamily = "sans-serif"
-            }
-        }
-        div {
-            li {
-                + "Counts $counter"
-
-            }
-
-        }
-        styledDiv {
-            css {
-              position = Position.absolute
-                top = 10.px
-                right = 10.px
-            }
-            h3 {
-                +"John Doe: Building and breaking things"
-            }
-            img {
-                attrs {
-                    src = "https://via.placeholder.com/640x360.png?text=Video+Player+Placeholder"
-                }
-            }
-        }
-        for(video in unwatchedVideos) {
-            p {
-                +"${video.speaker}: ${video.title}"
-            }
-        }
+        child(App::class) {}
     }
 }
 
-val unwatchedVideos = listOf(
-    Video(1, "Building and breaking things", "John Doe", "https://youtu.be/PsaFVLr8t4E"),
-    Video(2, "The development process", "Jane Smith", "https://youtu.be/PsaFVLr8t4E"),
-    Video(3, "The Web 7.0", "Matt Miller", "https://youtu.be/PsaFVLr8t4E")
-)
+val canvas = initalizeCanvas()
+fun initalizeCanvas(): HTMLCanvasElement {
+    val canvas = document.createElement("canvas") as HTMLCanvasElement
+    val context = canvas.getContext("2d") as CanvasRenderingContext2D
+    context.canvas.width = window.innerWidth.toInt();
+    context.canvas.height = window.innerHeight.toInt();
+    document.body!!.appendChild(canvas)
+    return canvas
+}
 
-val watchedVideos = listOf(
-    Video(4, "Mouseless development", "Tom Jerry", "https://youtu.be/PsaFVLr8t4E")
-)
+class FancyLines() {
+    val context = canvas.getContext("2d") as CanvasRenderingContext2D
+    val height = canvas.height.toDouble()
+    val width = canvas.width.toDouble()
+    fun nextX() = Random.nextDouble(width)
+    fun nextY() = Random.nextDouble(height)
+    var x = nextX()
+    var y = nextY()
+    var hue = 0
+
+    fun line() {
+        context.save();
+
+        context.beginPath();
+
+        context.lineWidth = Random.nextDouble(20.0)
+        context.moveTo(x, y);
+
+        x = nextX()
+        y = nextY()
+
+        context.bezierCurveTo(
+            nextX(), nextY(),
+            nextX(), nextY(), x, y
+        )
+
+        hue += Random.nextInt(10)
+
+        context.strokeStyle = "hsl($hue, 50%, 50%)";
+
+        context.shadowColor = "white";
+        context.shadowBlur = 10.0;
+
+        context.stroke();
+
+        context.restore();
+    }
+
+    fun blank() {
+        context.fillStyle = "rgba(255,255,1,0.1)";
+        context.fillRect(0.0, 0.0, width, height);
+    }
+
+    fun run() {
+        window.setInterval({ line() }, 40);
+        window.setInterval({ blank() }, 100);
+    }
+}
+
 data class Video(val id: Int, val title: String, val speaker: String, val videoUrl: String)
